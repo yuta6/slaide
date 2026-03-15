@@ -67,6 +67,10 @@ PNG を見てチェックする:
 
 問題があれば修正して再度 build:png。OK になるまで繰り返す。
 
+#### 代替: dev サーバー + Playwright MCP
+
+`npm run dev` で Astro dev サーバーを起動し、Playwright MCP 経由でスクリーンショットを取得してチェックすることもできる。ビルド不要で高速にイテレーションできる。
+
 ### Step 6: ビルド
 
 ```bash

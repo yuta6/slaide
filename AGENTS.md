@@ -6,25 +6,12 @@
 
 ```
 slaide/
-├── AGENTS.md                    ← 今読んでいるファイル（開発者AI向け）
-├── docs/
-│   └── concept/
-│       ├── instruction.md       ← プロジェクトの仕様（何を作るか）
-│       └── designDoc.md         ← 技術設計（どう作るか）
-│
-├── template/                    ← npm create slaide で配布される成果物
-│   ├── AGENTS.md                ← エンドユーザーAI向け（スライドの作り方）
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── AGENTS.md        ← コンポーネント設計ガイド
-│   │   ├── pages/
-│   │   │   └── AGENTS.md        ← スライドの書き方
-│   │   └── presenter/
-│   │       └── AGENTS.md        ← Presenter カスタマイズガイド
-│   └── ...                      ← Astro プロジェクトの実体（Phase 1 で構築）
-│
-└── cli/                         ← create-slaide CLI（Phase 3）
+├── docs/           ← コンセプト・技術設計・ロードマップ
+├── template/       ← npm create slaide で配布される成果物（AGENTS.md あり）
+└── cli/            ← create-slaide CLI（Phase 3）
 ```
+
+各ディレクトリの詳細は、そのディレクトリ内の AGENTS.md や `docs/designDoc.md` を参照。
 
 ## 2つのレイヤーを理解する
 
@@ -34,8 +21,9 @@ slaide/
 
 - **目的**: slaide という OSS ツールを開発する
 - **対象**: このリポジトリを開発する AI / 開発者
-- **仕様書**: `docs/concept/instruction.md`（何を作るか）
-- **技術設計**: `docs/concept/designDoc.md`（どう作るか）
+- **コンセプト**: `docs/overview.md`（設計思想・競合比較）
+- **技術設計**: `docs/designDoc.md`（どう作るか）
+- **ロードマップ**: `docs/roadmap.md`（Phase 1-4・未決事項）
 
 ### B: テンプレートレイヤー（成果物）
 
@@ -47,7 +35,7 @@ slaide/
 ### 開発時の注意
 
 - `template/` 内のファイルを編集するときは、**エンドユーザーの AI がこれを読む** ことを意識する
-- `docs/concept/` のファイルを編集するときは、**このプロジェクトの開発仕様** を更新している
+- `docs/` のファイルを編集するときは、**このプロジェクトの開発仕様** を更新している
 - 2つのレイヤーの AGENTS.md は目的が異なる。内容を混同しない
 
 ## 開発ワークフロー
@@ -120,7 +108,6 @@ slaide/
 | `template` | `template/` 配下の変更 |
 | `cli` | `cli/` 配下の変更 |
 | `docs` | `docs/` 配下の変更 |
-| `concept` | `docs/concept/` 配下の変更 |
 | `root` | ルートの設定ファイル等 |
 
 **例:**
@@ -186,6 +173,7 @@ npm run build:html -- --deck <name>  # HTML 出力
 
 実装に迷ったら以下を参照:
 
-- **全体像・コンセプト**: `docs/concept/instruction.md`
-- **技術的な設計詳細**: `docs/concept/designDoc.md`
+- **全体像・コンセプト**: `docs/overview.md`
+- **技術的な設計詳細**: `docs/designDoc.md`
+- **ロードマップ**: `docs/roadmap.md`
 - **テンプレートの AGENTS.md**: `template/AGENTS.md`（エンドユーザー向けだが、何を提供するか理解するために読む）
