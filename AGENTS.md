@@ -87,6 +87,101 @@ slaide/
 - **pdf-lib** — PDF 結合
 - **esbuild** — Presenter ランタイムのバンドル
 
+## コミットルール
+
+### Conventional Commits（必須）
+
+`commitlint` + `lefthook` の `commit-msg` フックで強制される。形式:
+
+```
+<type>(<scope>): <description>
+```
+
+**type（必須）:**
+
+| type | 用途 |
+|------|------|
+| `feat` | 新機能 |
+| `fix` | バグ修正 |
+| `docs` | ドキュメントのみの変更 |
+| `style` | コードの意味に影響しない変更（空白、フォーマット等） |
+| `refactor` | バグ修正でも機能追加でもないコード変更 |
+| `perf` | パフォーマンス改善 |
+| `test` | テストの追加・修正 |
+| `build` | ビルドシステムや外部依存の変更 |
+| `ci` | CI 設定の変更 |
+| `chore` | その他の雑務 |
+| `revert` | 過去のコミットの取り消し |
+
+**scope（推奨）:**
+
+| scope | 対象 |
+|-------|------|
+| `template` | `template/` 配下の変更 |
+| `cli` | `cli/` 配下の変更 |
+| `docs` | `docs/` 配下の変更 |
+| `concept` | `docs/concept/` 配下の変更 |
+| `root` | ルートの設定ファイル等 |
+
+**例:**
+
+```
+feat(template): add SlideLayout.astro with fixed-frame design system
+fix(template): resolve text overflow in slide content area
+docs: update designDoc.md with presenter runtime spec
+chore(root): add biome and lefthook configuration
+build(template): add Playwright and pdf-lib dependencies
+```
+
+### コミットの粒度
+
+- 1つの論理的変更 = 1コミット
+- `template/` と `docs/` をまたぐ変更は別コミットに分ける（レイヤーの分離）
+- WIP コミットは避ける。意味のある単位でコミットする
+
+## コード品質ツール
+
+### Biome（Linter + Formatter）
+
+```bash
+npm run lint          # チェックのみ
+npm run lint:fix      # 自動修正
+npm run format        # フォーマット
+```
+
+- `.ts`, `.mjs`, `.js`, `.json` をフルサポート
+- `.astro` は frontmatter 部分のみ（テンプレート部分は Biome 未対応）
+- 設定: `biome.json`（ルート）
+
+### lefthook（Git Hooks）
+
+- **pre-commit**: ステージングされたファイルに `biome check` を実行
+- **commit-msg**: `commitlint` で Conventional Commits 形式を検証
+- 設定: `lefthook.yml`（ルート）
+
+### commitlint
+
+- 設定: `commitlint.config.cjs`
+- ベース: `@commitlint/config-conventional`
+- scope は `template`, `cli`, `docs`, `concept`, `root` を許可
+
+## 開発コマンド
+
+```bash
+# ルートで実行
+npm install                    # biome + lefthook をインストール
+npm run lint                   # 全体を lint
+npm run lint:fix               # lint + 自動修正
+
+# template/ で実行（Phase 1 構築後）
+cd template
+npm install
+npm run dev                    # Astro dev サーバー
+npm run build:png -- --deck <name>   # PNG 出力（LLM チェック用）
+npm run build:pdf -- --deck <name>   # PDF 出力
+npm run build:html -- --deck <name>  # HTML 出力
+```
+
 ## 仕様の参照先
 
 実装に迷ったら以下を参照:

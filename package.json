@@ -1,0 +1,17 @@
+{
+	"name": "slaide",
+	"private": true,
+	"description": "Natural language to consulting-quality slides — Astro-based build infrastructure",
+	"scripts": {
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
+		"commitlint": "commitlint --edit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.0",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
+		"lefthook": "^2.1.0"
+	}
+}
