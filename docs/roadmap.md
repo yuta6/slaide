@@ -36,45 +36,6 @@
 
 ---
 
-## 配布戦略
-
-### Phase 1: npm create edition
-
-`npm create slaide` で Astro プロジェクトが出てくる。AGENTS.md 入り。
-
-```bash
-npm create slaide my-deck
-cd my-deck
-npm install
-# → Claude Code / Codex / Cursor で「ピッチデッキ作って」
-```
-
-`create-slaide` npm パッケージの中身はテンプレートファイル群をコピーするだけの scaffolding CLI。
-
-### monorepo での使い方
-
-```
-client-project/
-├── app/                  ← アプリ本体
-├── infra/                ← Terraform 等
-├── docs/                 ← ドキュメント
-└── slides/               ← npm create slaide で生成
-    ├── package.json
-    ├── src/pages/
-    │   ├── proposal/     ← 提案資料
-    │   └── report/       ← 報告資料
-    └── ...
-```
-
-### Phase 4: SKILL edition（後回し）
-
-- SKILL.md は薄いオーケストレーター（プロジェクト生成 → AGENTS.md に委譲）
-- Astro をブラックボックス化。ユーザーには PDF/HTML だけが見える
-- Eject で npm create edition 相当に変換可能
-- 未解決: フォント・素材の提供方法
-
----
-
 ## 未決事項
 
 - フォント戦略: どのフォントを推奨するか。バンドルはしない

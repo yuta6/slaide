@@ -38,43 +38,6 @@ slaide/
 - `docs/` のファイルを編集するときは、**このプロジェクトの開発仕様** を更新している
 - 2つのレイヤーの AGENTS.md は目的が異なる。内容を混同しない
 
-## 開発ワークフロー
-
-### Phase 1: 最小構成で動くもの
-
-1. プロジェクト初期化（`template/` 内に package.json, astro.config.mjs, tailwind.config.mjs, tsconfig.json）
-2. SlideLayout.astro（固定枠 + CSS custom properties によるデザインシステム）
-3. template/ 内の AGENTS.md 群の整備
-4. サンプルデッキ1つ（sample/ に main.astro + slides/）
-5. build-png.mjs（Playwright → PNG、LLM 品質チェック用）
-6. build-pdf.mjs（Playwright → PDF、--deck 対応）
-7. build-html.mjs（main.html 後処理 + Presenter ランタイム注入、--deck 対応）
-
-### Phase 2: 品質向上
-
-8. AGENTS.md のデザイン原則を充実
-9. 複数テーマ対応（light / dark / custom）
-10. ポスター出力モード
-
-### Phase 3: 配布
-
-11. `cli/` に create-slaide scaffolding CLI を実装
-12. npm パッケージとして公開
-13. README.md / ドキュメント整備
-
-### Phase 4: SKILL edition
-
-14. SKILL.md（薄いオーケストレーター）
-15. Eject 機能
-
-## 技術スタック
-
-- **Astro** — 静的サイトジェネレーター。スライドをコンポーネントとして構造化
-- **Tailwind CSS** — デザイントークンの強制装置
-- **Playwright** — PNG / PDF 生成
-- **pdf-lib** — PDF 結合
-- **esbuild** — Presenter ランタイムのバンドル
-
 ## コミットルール
 
 ### Conventional Commits（必須）
@@ -150,7 +113,7 @@ npm run format        # フォーマット
 
 - 設定: `commitlint.config.cjs`
 - ベース: `@commitlint/config-conventional`
-- scope は `template`, `cli`, `docs`, `concept`, `root` を許可
+- scope は `template`, `cli`, `docs`, `root` を許可
 
 ## 開発コマンド
 
