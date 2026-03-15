@@ -6,9 +6,9 @@
 
 ```bash
 npm run dev                              # プレビュー
-npm run build:png -- --deck <n>       # PNG 出力（LLM 品質チェック用）
-npm run build:pdf -- --deck <n>       # PDF 出力
-npm run build:html -- --deck <n>      # スタンドアロン HTML 出力
+npm run build:png -- --deck <deck-name>   # PNG 出力（LLM 品質チェック用）
+npm run build:pdf -- --deck <deck-name>   # PDF 出力
+npm run build:html -- --deck <deck-name>  # スタンドアロン HTML 出力
 npm run build:pdf -- --all               # 全デッキ一括 PDF
 ```
 
@@ -49,14 +49,14 @@ Web は縦にスクロールする。**スライドは 1920×1080px の箱。は
 
 ### Step 4: スライド作成
 
-`src/pages/<deck-name>/` に `01.astro` から順番にスライドを作成する。
+`src/pages/<deck-name>/main.astro` にスライドの順序を定義し、`slides/` 配下に各スライドコンポーネントを作成する。
 → 詳細は `src/pages/AGENTS.md` を参照
 
 ### Step 5: 品質チェック（build:png）
 
 ```bash
-npm run build:png -- --deck <n>
-# → dist/<n>/png/01.png, 02.png, ... が出力される
+npm run build:png -- --deck <deck-name>
+# → dist/<deck-name>/png/01.png, 02.png, ... が出力される
 ```
 
 PNG を見てチェックする:
@@ -70,8 +70,8 @@ PNG を見てチェックする:
 ### Step 6: ビルド
 
 ```bash
-npm run build:pdf -- --deck <n>     # dist/<n>.pdf
-npm run build:html -- --deck <n>    # dist/<n>.html
+npm run build:pdf -- --deck <deck-name>     # dist/<deck-name>.pdf
+npm run build:html -- --deck <deck-name>    # dist/<deck-name>.html
 ```
 
 ## プロジェクト構造
@@ -85,7 +85,7 @@ npm run build:html -- --deck <n>    # dist/<n>.html
 ├── scripts/
 │   ├── build-png.mjs            ← Playwright → PNG（LLM 品質チェック用）
 │   ├── build-pdf.mjs            ← Playwright → PDF
-│   └── build-html.mjs           ← HTML結合 + Presenterランタイム注入
+│   └── build-html.mjs           ← main.html 後処理 + Presenter ランタイム注入
 │
 ├── assets/
 │   └── fonts/                   ← ユーザーが事前配置
@@ -108,8 +108,9 @@ npm run build:html -- --deck <n>    # dist/<n>.html
     └── pages/
         ├── AGENTS.md            ← スライドの書き方
         └── <deck-name>/
-            ├── 01.astro
-            └── ...
+            ├── main.astro       ← スライド順序の唯一の真実
+            └── slides/
+                └── ...
 ```
 
 ## SlideLayout.astro

@@ -6,39 +6,66 @@
 
 ```
 src/pages/pitch-deck/
-├── 01.astro        ← タイトルスライド
-├── 02.astro        ← アジェンダ
-├── 03.astro
-├── ...
-└── 10.astro        ← クロージング
+├── main.astro              ← スライド順序を定義
+└── slides/
+    ├── Title.astro
+    ├── Agenda.astro
+    ├── MarketOverview.astro
+    └── Closing.astro
 ```
 
-- ファイル名は `01.astro`, `02.astro`, ... ゼロパディング2桁
-- ビルドスクリプトがファイル名の番号順でページ順を決定する
+- 順序は `main.astro` 内のコンポーネントの並び順で決まる
+- スライドを途中挿入するときもリネーム不要
+- `slides/` 配下のコンポーネント名は内容がわかる名前にする
 
 ## Phase 1 の考え方
 
 Phase 1 では `_deck.json` のようなデッキ単位のデフォルト設定ファイルは持たない。
 
-- LLM は各スライドの frontmatter を明示的に書く
+- LLM は `main.astro` に並び順を書き、各スライドコンポーネントに必要な設定を書く
 - 共通の見た目は `SlideLayout.astro` に寄せる
 - デッキ名や出力ファイル名は `src/pages/<deck-name>/` のディレクトリ名から決める
 - 将来、ビルド専用メタデータが必要になった場合だけ別ファイルを追加する
 
-## frontmatter
+## main.astro
 
-各スライドの先頭に記述。全フィールドはオプショナル。
+`main.astro` が順序の唯一の真実になる。
 
 ```astro
 ---
-order: 1
-title: "スライドタイトル"
-transition: "fade"            # fade | slide | none
-theme: "dark"                 # dark | light
-showHeader: true
-showFooter: true
-notes: "スピーカーノート"
+import Title from './slides/Title.astro';
+import Agenda from './slides/Agenda.astro';
+import MarketOverview from './slides/MarketOverview.astro';
+import Closing from './slides/Closing.astro';
 ---
+
+<Title />
+<Agenda />
+<MarketOverview />
+<Closing />
+```
+
+## 各スライドコンポーネント
+
+各スライドコンポーネントは `SlideLayout.astro` を使って1枚分の固定枠を描画する。
+
+```astro
+---
+import SlideLayout from '../../../layouts/SlideLayout.astro';
+
+const frontmatter = {
+  title: "スライドタイトル",
+  transition: "fade",
+  theme: "dark",
+  showHeader: true,
+  showFooter: true,
+  notes: "スピーカーノート",
+};
+---
+
+<SlideLayout frontmatter={frontmatter}>
+  <!-- ここにコンテンツ -->
+</SlideLayout>
 ```
 
 プロジェクトに応じて独自フィールドを追加してよい。
@@ -47,17 +74,20 @@ notes: "スピーカーノート"
 
 ```astro
 ---
-order: 1
-title: "タイトル"
+import SlideLayout from '../../../layouts/SlideLayout.astro';
+
+const frontmatter = {
+  title: "タイトル",
+  transition: "fade",
+};
 ---
-import SlideLayout from '../../layouts/SlideLayout.astro';
 
 <SlideLayout frontmatter={frontmatter}>
   <!-- ここにコンテンツ -->
 </SlideLayout>
 ```
 
-SlideLayout の子要素に自由にコンテンツを配置する。コンポーネント、生 HTML、インライン SVG、何でも使える。
+`main.astro` には順序だけを書き、`SlideLayout` の子要素に自由にコンテンツを配置する。コンポーネント、生 HTML、インライン SVG、何でも使える。
 
 ## スライド構成のパターン
 
