@@ -5,11 +5,11 @@ A project for generating consulting-quality slides and documents from natural la
 ## Quick Reference
 
 ```bash
-npm run dev                                # Preview
+npm run dev                                # Preview in Astro dev server
+npm run build                              # Build standalone HTML files
 npm run build:png -- --deck <deck-name>   # PNG output for LLM quality checks
 npm run build:pdf -- --deck <deck-name>   # PDF output
-npm run build:html -- --deck <deck-name>  # Standalone HTML output
-npm run build:pdf -- --all                # Build every deck
+npm run preview                           # Preview the built dist/ output
 ```
 
 ## Most Important Rule: Slides Use a Fixed Frame
@@ -37,7 +37,7 @@ Clarify the following. If something is unclear, ask the user:
 Design the full structure before writing slides.
 
 1. Decide the deck name and overall outline.
-2. If you want to customize the visual direction of `SlideLayout.astro`, override CSS custom properties in `<style is:global>` inside `main.astro`. Do not break the fixed-frame structure.
+2. If you want to customize the visual direction of `SlideLayout.astro`, override CSS custom properties in `<style is:global>` inside the deck's `index.astro`. Do not break the fixed-frame structure.
 3. Identify the components you will need.
 4. Decide the slide order and layout pattern.
 5. Show the proposed structure to the user and get confirmation.
@@ -50,8 +50,9 @@ For details, see `src/components/AGENTS.md`.
 
 ### Step 4: Create Slides
 
-Define the slide order in `src/pages/<deck-name>/main.astro` and create each slide component under `_slides/`.
+Define the slide order in `src/pages/<deck-name>/index.astro` and create each slide component under `_slides/`.
 An agenda or closing slide can be useful, but neither is required.
+Put deck-specific images in `src/pages/<deck-name>/_assets/` and shared images in `src/assets/shared/`.
 For details, see `src/pages/_AGENTS.md`.
 
 ### Step 5: Quality Check with `build:png`
@@ -73,8 +74,9 @@ If something is off, fix it and run `build:png` again. Repeat until it looks rig
 ### Step 6: Build
 
 ```bash
-npm run build:pdf -- --deck <deck-name>     # dist/<deck-name>.pdf
-npm run build:html -- --deck <deck-name>    # dist/<deck-name>.html
+npm run build                              # dist/index.html, dist/<deck-name>.html
+npm run build:pdf -- --deck <deck-name>    # dist/<deck-name>.pdf
+npm run preview                            # Preview dist/ locally
 ```
 
 ## Project Structure
@@ -86,40 +88,41 @@ npm run build:html -- --deck <deck-name>    # dist/<deck-name>.html
 │
 ├── scripts/
 │   ├── build-png.mjs            <- Playwright -> PNG for LLM quality checks
-│   ├── build-pdf.mjs            <- Playwright -> PDF
-│   ├── build-html.mjs           <- Post-processes main.html and injects the Presenter runtime
+│   ├── build-pdf.mjs            <- Playwright print-to-PDF
 │   └── lib/
-│       └── deck-utils.mjs       <- Parses --deck / --all arguments
+│       ├── astro-inline-css.mjs <- Inlines generated CSS into built HTML files
+│       └── deck-utils.mjs       <- Resolves decks and starts a preview server
 │
 └── src/
-    ├── layouts/
-    │   └── SlideLayout.astro    <- Fixed frame + design system shared by every deck
-    ├── components/              <- Shared components created by the LLM
+    ├── assets/
+    │   └── shared/              <- Shared images and reusable assets
+    ├── components/
+    │   ├── SlideLayout.astro    <- Fixed slide frame + design tokens
     │   └── AGENTS.md            <- Component design guide
-    ├── presenter/               <- Presenter runtime injected by build-html.mjs
-    │   ├── presenter.js         <- Keyboard controls and state management
-    │   ├── transitions.css      <- Transition definitions
-    │   └── AGENTS.md            <- Customization guide
+    ├── layouts/
+    │   └── DeckLayout.astro     <- Presenter app shell and runtime
     └── pages/
-        ├── _AGENTS.md           <- How to write slides (_ prefix excludes it from Astro routing)
+        ├── index.astro          <- Built deck index page
+        ├── _AGENTS.md           <- How to write slides
         └── <deck-name>/
-            ├── main.astro       <- The single source of truth for slide order
-            └── _slides/         <- _ prefix excludes it from Astro routing
+            ├── index.astro      <- The single source of truth for slide order
+            ├── _assets/         <- Optional deck-specific assets
+            └── _slides/         <- `_` prefix excludes it from Astro routing
                 └── ...
 ```
 
-## SlideLayout.astro
+## `SlideLayout.astro`
 
 It has two roles:
 
-**Fixed frame, do not break it:** 1920x1080px, `overflow: hidden`, and the slot structure
+**Fixed frame, do not break it:** 1920x1080px, `overflow: hidden`, and the header/content/footer structure
 
 **Visual direction, do customize it:** CSS custom property values, plus header and footer styling
 
-At the start of a project, use `<style is:global>` in `main.astro` to align the color palette, typography, and spacing with the brand.
+At the start of a project, use `<style is:global>` in the deck's `index.astro` to align the color palette, typography, and spacing with the brand.
 
 ```astro
-<!-- Example of visual customization in main.astro -->
+<!-- Example of visual customization in index.astro -->
 <style is:global>
   .slide-frame {
     --color-primary: #e11d48;
@@ -130,13 +133,13 @@ At the start of a project, use `<style is:global>` in `main.astro` to align the 
 
 ## Presenter
 
-The output of `build:html` behaves like presentation software. The JS and CSS live in `src/presenter/`.
+The output of `npm run build` already behaves like presentation software.
+`DeckLayout.astro` provides the presenter viewport, runtime logic, progress bar, notes panel, and slide navigation behavior.
 
-- `build-html.mjs` injects `presenter.js` and `transitions.css` into the standalone HTML
-- Use Playwright MCP only when you need to verify Presenter behavior such as transitions, keyboard controls, notes, or interactive UI
 - Keyboard controls include left/right arrows, Space, `f` for fullscreen, and `p` for notes
 - Click and touch-swipe interactions are supported
-- For customization details, see `src/presenter/AGENTS.md`
+- `build:png` and `build:pdf` temporarily override the presenter layout so every slide becomes visible for export
+- Use Playwright MCP only when you need to verify presenter behavior such as transitions, keyboard controls, notes, or interactive UI
 
 ## Styling
 
@@ -178,15 +181,15 @@ Main tokens:
 
 ## Prohibited
 
-1. **Breaking the fixed frame.** Do not change `overflow: hidden` or the fixed-size slot structure.
+1. **Breaking the fixed frame.** Do not change the fixed-size slide frame structure.
 2. **Leaving overflow unchecked.** Always verify that text and charts are not clipped.
 3. **Hardcoded CSS.** No `style="color: #FF0000"`. Use CSS custom properties.
 4. **Overloading slides with text.** Communicate with keywords and phrases, not paragraphs.
 5. **Breaking the font-size hierarchy.** Do not use font sizes outside the design tokens.
 6. **Distorting image aspect ratios.** Use `object-fit: contain` or `object-fit: cover`.
 7. **Using too many colors.** Keep each slide to five chromatic colors or fewer.
-8. **Writing slide-side animations.** Animations are injected by the Presenter during `build:html`. They are not needed in slide components.
+8. **Writing slide-side animations.** Presenter behavior belongs in `DeckLayout.astro`, not in slide components.
 
 ## Multi-Deck Setup
 
-Each directory directly under `src/pages/` is one deck. There is no separate deck config file. Deck behavior is defined by slide props and the defaults inside `SlideLayout`.
+Each directory directly under `src/pages/` is one deck. Each deck uses its own `index.astro` as the source of truth for slide order.

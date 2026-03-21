@@ -1,8 +1,8 @@
 # How to Write Slides
 
-## Important: The `sample/` Deck is Read-Only
+## Important: The `sample/` Deck Is Read-Only
 
-The `sample/` deck is a reference implementation that demonstrates slide patterns and layout techniques. **Do not edit, rename, or delete any files under `src/pages/sample/`.** When creating a presentation, always create a new deck directory (e.g., `src/pages/my-deck/`). Use `sample/` only as a reference for how to structure slides.
+The `sample/` deck is a reference implementation that demonstrates slide patterns and layout techniques. **Do not edit, rename, or delete any files under `src/pages/sample/`.** When creating a presentation, always create a new deck directory such as `src/pages/my-deck/`. Use `sample/` only as a reference.
 
 ## File Structure
 
@@ -10,53 +10,58 @@ Create each deck under `src/pages/<deck-name>/`.
 
 ```
 src/pages/pitch-deck/
-├── main.astro              <- Defines slide order
+├── index.astro             <- Defines slide order and wraps the deck in DeckLayout
+├── _assets/                <- Optional deck-specific images and other assets
 └── _slides/                <- `_` prefix excludes it from Astro routing
     ├── Title.astro
     ├── MarketOverview.astro
     └── Summary.astro
 ```
 
-- Order is determined by the order of components in `main.astro`
+- Order is determined by the order of components in `index.astro`
 - You do not need to rename files when inserting slides in the middle
 - Give components under `_slides/` names that clearly describe their contents
-- The `_` prefix is required by Astro. Without it, each slide would be built as its own page
+- The `_` prefix keeps `_slides/` and `_assets/` out of Astro routing
 
-## `main.astro`
+For assets:
 
-`main.astro` is the single source of truth for slide order.
+- Put deck-specific images in `src/pages/<deck-name>/_assets/`
+- Put shared images in `src/assets/shared/`
+- Do not store source assets in `dist/`
+
+## `index.astro`
+
+`index.astro` is the single source of truth for the deck.
 
 ```astro
 ---
+import DeckLayout from '../../layouts/DeckLayout.astro';
 import Title from './_slides/Title.astro';
 import MarketOverview from './_slides/MarketOverview.astro';
 import Summary from './_slides/Summary.astro';
 ---
 
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Presentation Title</title>
-  <style is:global>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  </style>
-</head>
-<body>
+<DeckLayout title="Presentation Title">
   <Title />
   <MarketOverview />
   <Summary />
-</body>
-</html>
+</DeckLayout>
 ```
+
+`src/pages/index.astro` automatically discovers deck routes, so each deck should live in its own directory and expose `index.astro`.
 
 ### Override the Visual Direction
 
-If you want to change the default colors or fonts, override CSS custom properties in `<style is:global>` inside `main.astro`.
+If you want to change the default colors or fonts, override CSS custom properties in `<style is:global>` inside the deck's `index.astro`.
 
 ```astro
+<DeckLayout title="Presentation Title">
+  <Title />
+  <MarketOverview />
+  <Summary />
+</DeckLayout>
+
 <style is:global>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   .slide-frame {
     --color-primary: #e11d48;
     --color-secondary: #0ea5e9;
@@ -136,4 +141,4 @@ After writing slides, confirm the following:
 - [ ] Are sources written in caption-sized text?
 - [ ] Are image aspect ratios preserved?
 
-Run `npm run build:png` and verify the result visually.
+Run `npm run build:png -- --deck <deck-name>` and verify the result visually.

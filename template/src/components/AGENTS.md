@@ -34,6 +34,14 @@ These are optional examples, not a required starter set.
 4. Keep one component per file.
 5. Scope styles inside Astro `<style>` tags.
 
+## Assets
+
+Put shared images and reusable visual assets in `src/assets/shared/`.
+
+If an image is only used by one deck, put it next to that deck under `src/pages/<deck-name>/_assets/`.
+
+Do not add source assets directly to `dist/`. `dist/` is generated output only.
+
 ## Good Example
 
 ```astro
