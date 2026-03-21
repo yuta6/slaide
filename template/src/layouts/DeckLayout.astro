@@ -1,0 +1,257 @@
+---
+interface Props {
+	title?: string;
+}
+
+const { title = 'Presentation' } = Astro.props;
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+</head>
+<body>
+  <div class="presenter-viewport">
+    <div class="slide-scaler">
+      <slot />
+    </div>
+  </div>
+  <div class="presenter-progress" data-presenter-ui>
+    <div class="presenter-progress-bar" data-progress-bar></div>
+  </div>
+  <div class="slide-counter" data-slide-counter data-presenter-ui></div>
+  <div class="presenter-notes" data-presenter-notes data-presenter-ui></div>
+  <script>
+    function scaleToFit() {
+      const scaler = document.querySelector<HTMLElement>('.slide-scaler');
+      const firstSlide = document.querySelector<HTMLElement>('[data-slide]');
+      if (!scaler || !firstSlide) return;
+      const sw = parseInt(firstSlide.style.getPropertyValue('--slide-width'), 10) || 1920;
+      const sh = parseInt(firstSlide.style.getPropertyValue('--slide-height'), 10) || 1080;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const scale = Math.min(vw / sw, vh / sh);
+      const offsetX = (vw - sw * scale) / 2;
+      const offsetY = (vh - sh * scale) / 2;
+      scaler.style.width = `${sw}px`;
+      scaler.style.height = `${sh}px`;
+      scaler.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    }
+
+    window.addEventListener('resize', scaleToFit);
+    window.addEventListener('load', scaleToFit);
+    scaleToFit();
+
+    class SlidePresenter {
+      current: number;
+      slides: HTMLElement[];
+      notes: HTMLElement | null;
+
+      constructor() {
+        this.current = 0;
+        this.slides = Array.from(document.querySelectorAll<HTMLElement>('[data-slide]'));
+        this.notes = document.querySelector<HTMLElement>('[data-presenter-notes]');
+        if (this.slides.length === 0) return;
+
+        this.bindEvents();
+        this.showSlide(0);
+      }
+
+      bindEvents() {
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (this.shouldIgnoreKeyboardEvent(e)) return;
+
+          const actions: Record<string, () => void> = {
+            'ArrowRight': () => this.next(),
+            'ArrowDown': () => this.next(),
+            ' ': () => this.next(),
+            'Spacebar': () => this.next(),
+            'ArrowLeft': () => this.prev(),
+            'ArrowUp': () => this.prev(),
+            'f': () => this.toggleFullscreen(),
+            'F': () => this.toggleFullscreen(),
+            'p': () => this.toggleNotes(),
+            'P': () => this.toggleNotes(),
+            'Home': () => this.goTo(0),
+            'End': () => this.goTo(this.slides.length - 1),
+          };
+          const action = actions[e.key];
+          if (action) {
+            e.preventDefault();
+            action();
+          }
+        });
+
+        document.addEventListener('click', (e: MouseEvent) => {
+          if (this.shouldIgnoreClickEvent(e)) return;
+          if (e.clientX < window.innerWidth * 0.2) {
+            this.prev();
+          } else {
+            this.next();
+          }
+        });
+
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e: TouchEvent) => {
+          touchStartX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', (e: TouchEvent) => {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 50) {
+            dx > 0 ? this.prev() : this.next();
+          }
+        });
+      }
+
+      showSlide(index: number) {
+        if (index < 0 || index >= this.slides.length) return;
+        for (const slide of this.slides) slide.classList.remove('active');
+        this.slides[index].classList.add('active');
+        this.current = index;
+        this.updateProgress();
+        this.updateNotes();
+      }
+
+      updateProgress() {
+        const bar = document.querySelector<HTMLElement>('[data-progress-bar]');
+        if (bar) bar.style.width = `${((this.current + 1) / this.slides.length) * 100}%`;
+
+        const counter = document.querySelector('[data-slide-counter]');
+        if (counter) counter.textContent = `${this.current + 1} / ${this.slides.length}`;
+      }
+
+      updateNotes() {
+        const notesText = this.slides[this.current].dataset.slideNotes || '';
+        if (this.notes) this.notes.textContent = notesText;
+      }
+
+      next() { this.showSlide(this.current + 1); }
+      prev() { this.showSlide(this.current - 1); }
+      goTo(i: number) { this.showSlide(i); }
+
+      toggleFullscreen() {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          document.documentElement.requestFullscreen();
+        }
+      }
+
+      toggleNotes() {
+        if (this.notes) this.notes.classList.toggle('visible');
+      }
+
+      shouldIgnoreKeyboardEvent(e: KeyboardEvent) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return true;
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return false;
+        if (target.isContentEditable) return true;
+        const tagName = target.tagName;
+        return tagName === 'INPUT' || tagName === 'TEXTAREA'
+          || tagName === 'SELECT' || tagName === 'BUTTON';
+      }
+
+      shouldIgnoreClickEvent(e: MouseEvent) {
+        const target = e.target;
+        if (!(target instanceof Element)) return false;
+        return Boolean(
+          target.closest('[data-presenter-ui]')
+          || target.closest('a, button, input, textarea, select, label, summary')
+          || window.getSelection()?.toString()
+        );
+      }
+    }
+
+    new SlidePresenter();
+  </script>
+</body>
+</html>
+
+<style is:global>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+
+  .presenter-viewport {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slide-scaler {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: top left;
+  }
+
+  /* ===== Slide visibility & transitions ===== */
+  .slide-scaler > [data-slide] {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .slide-scaler > [data-slide].active {
+    z-index: 1;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== Progress bar ===== */
+  .presenter-progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    z-index: 1000;
+  }
+
+  .presenter-progress-bar {
+    height: 100%;
+    background: #2563eb;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* ===== Slide counter ===== */
+  .slide-counter {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: system-ui, sans-serif;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  /* ===== Presenter notes ===== */
+  .presenter-notes {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 16px;
+    font-size: 18px;
+    font-family: system-ui, sans-serif;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+  }
+
+  .presenter-notes.visible {
+    transform: translateY(0);
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+interface Props {
+	title?: string;
+	theme?: 'light' | 'dark';
+	aspectRatio?: '16:9' | '4:3' | 'A4' | 'A4-landscape';
+	showHeader?: boolean;
+	showFooter?: boolean;
+	pageNumber?: number;
+	transition?: string;
+	notes?: string;
+	class?: string;
+}
+
+const SIZES: Record<string, { width: number; height: number }> = {
+	'16:9': { width: 1920, height: 1080 },
+	'4:3': { width: 1440, height: 1080 },
+	A4: { width: 794, height: 1123 },
+	'A4-landscape': { width: 1123, height: 794 },
+};
+
+const {
+	title = '',
+	theme = 'light',
+	aspectRatio = '16:9',
+	showHeader = true,
+	showFooter = true,
+	pageNumber,
+	transition = 'fade',
+	notes = '',
+	class: className,
+} = Astro.props;
+
+const size = SIZES[aspectRatio] ?? SIZES['16:9'];
+---
+
+<div
+  class:list={['slide-frame', theme, className]}
+  style={`--slide-width: ${size.width}px; --slide-height: ${size.height}px;`}
+  data-slide
+  data-slide-transition={transition}
+  data-slide-notes={notes}
+>
+  {showHeader && (
+    <header class="slide-header">
+      <slot name="header">
+        {title && <span class="caption text-muted">{title}</span>}
+      </slot>
+    </header>
+  )}
+
+  <main class="slide-content">
+    <slot />
+  </main>
+
+  {showFooter && (
+    <footer class="slide-footer">
+      <slot name="footer">
+        {pageNumber && <span class="caption text-muted">{pageNumber}</span>}
+      </slot>
+    </footer>
+  )}
+</div>
+
+<style>
+  /* ===== Fixed Frame ===== */
+  .slide-frame {
+    width: var(--slide-width);
+    height: var(--slide-height);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-family-sans);
+  }
+
+  /* ===== Light Theme (default) ===== */
+  .slide-frame.light {
+    --color-bg: #ffffff;
+    --color-text: #1a1a2e;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-primary: #2563eb;
+    --color-secondary: #7c3aed;
+    --color-accent: #f59e0b;
+    --color-chart-1: #2563eb;
+    --color-chart-2: #7c3aed;
+    --color-chart-3: #059669;
+    --color-chart-4: #f59e0b;
+    --color-chart-5: #ef4444;
+    --color-chart-6: #8b5cf6;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  /* ===== Dark Theme ===== */
+  .slide-frame.dark {
+    --color-bg: #0f172a;
+    --color-text: #f1f5f9;
+    --color-muted: #94a3b8;
+    --color-border: #334155;
+    --color-primary: #60a5fa;
+    --color-secondary: #a78bfa;
+    --color-accent: #fbbf24;
+    --color-chart-1: #60a5fa;
+    --color-chart-2: #a78bfa;
+    --color-chart-3: #34d399;
+    --color-chart-4: #fbbf24;
+    --color-chart-5: #f87171;
+    --color-chart-6: #c084fc;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  /* ===== Typography ===== */
+  .slide-frame {
+    --font-size-title: 64px;
+    --font-size-heading: 40px;
+    --font-size-body: 24px;
+    --font-size-caption: 16px;
+    --font-family-sans: 'Noto Sans JP', system-ui, sans-serif;
+    --font-family-mono: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== Spacing ===== */
+  .slide-frame {
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 32px;
+    --space-xl: 64px;
+    --content-padding: 64px;
+  }
+
+  /* ===== Layout ===== */
+  .slide-header {
+    padding: var(--space-md) var(--content-padding);
+    flex-shrink: 0;
+  }
+
+  .slide-content {
+    flex: 1;
+    padding: 0 var(--content-padding);
+    overflow: hidden;
+  }
+
+  .slide-footer {
+    padding: var(--space-md) var(--content-padding);
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ===== Utility Classes ===== */
+  .caption {
+    font-size: var(--font-size-caption);
+    line-height: 1.5;
+  }
+
+  .text-muted {
+    color: var(--color-muted);
+  }
+</style>

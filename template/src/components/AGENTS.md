@@ -1,37 +1,40 @@
-# コンポーネント設計ガイド
+# Component Design Guide
 
-## 原則
+## Principles
 
-**コンポーネントは事前定義されていない。デッキの要件に合わせて自由に作る。**
+**Components are not predefined. Create them freely based on the needs of the deck.**
 
-再利用されるパターンをコンポーネントとして切り出す。1回しか使わないものはコンポーネント化不要。
+Extract reusable patterns into components. If something is used only once, it does not need to become a component.
 
-## 作るべきコンポーネントの例
+## Example Components to Create
 
-**レイアウトパターン:**
-- `TwoColumn.astro` — 左右2カラム（slot="left", slot="right"）
-- `ThreeColumn.astro` — 3カラム
-- `FullBleed.astro` — パディングなしの全面表示
-- `CenterContent.astro` — 中央配置
+These are optional examples, not a required starter set.
 
-**スライドの型:**
-- `TitleSlide.astro` — タイトルスライド用
-- `SectionDivider.astro` — セクション区切り
-- `AgendaSlide.astro` — アジェンダ/目次
+**Layout patterns:**
+- `TwoColumn.astro` - Two columns with `slot="left"` and `slot="right"`
+- `ThreeColumn.astro` - Three-column layout
+- `FullBleed.astro` - Edge-to-edge display with no padding
+- `CenterContent.astro` - Centered content
 
-**データ表示:**
-- `DataTable.astro` — テーブル
-- `KeyMetric.astro` — KPI ハイライト（大きな数字 + ラベル）
-- `Takeaways.astro` — 要点リスト（アイコン + テキスト）
+**Slide types:**
+- `TitleSlide.astro` - For title slides
+- `SectionDivider.astro` - Optional example for section breaks
+- `AgendaSlide.astro` - Optional example for agenda and outline slides
 
-## 設計ルール
+**Data display:**
+- `DataTable.astro` - Tables
+- `KeyMetric.astro` - KPI highlight with a large number and label
+- `Takeaways.astro` - Key-point list with icons and text
 
-1. Props を明確に型定義する
-2. **Tailwind クラスを使う。CSS ハードコード禁止。** `text-primary`, `gap-slide-md` 等のデザイントークンを使う
-3. slot を活用して柔軟に子要素を受け取れるようにする
-4. 1コンポーネント1ファイル
+## Design Rules
 
-## 良い例
+1. Define prop types clearly.
+2. **Use CSS custom properties. Do not hardcode values.** Use design tokens such as `var(--color-primary)` and `var(--space-md)`.
+3. Use slots so the component can accept flexible child content.
+4. Keep one component per file.
+5. Scope styles inside Astro `<style>` tags.
+
+## Good Example
 
 ```astro
 ---
@@ -40,24 +43,46 @@ interface Props {
 }
 const { items } = Astro.props;
 ---
-<ul class="flex flex-col gap-slide-sm list-none p-0">
+<ul class="takeaways">
   {items.map(item => (
-    <li class:list={[
-      "text-slide-body py-slide-sm px-slide-md border-l-3",
-      item.highlight ? "border-primary font-bold" : "border-muted"
-    ]}>
-      {item.icon && <span class="mr-slide-xs">{item.icon}</span>}
+    <li class:list={["item", { highlight: item.highlight }]}>
+      {item.icon && <span class="icon">{item.icon}</span>}
       <span>{item.text}</span>
     </li>
   ))}
 </ul>
+
+<style>
+  .takeaways {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    list-style: none;
+    padding: 0;
+  }
+
+  .item {
+    font-size: var(--font-size-body);
+    padding: var(--space-sm) var(--space-md);
+    border-left: 3px solid var(--color-muted);
+  }
+
+  .item.highlight {
+    border-left-color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  .icon {
+    margin-right: var(--space-xs);
+  }
+</style>
 ```
 
-## チャート・図表
+## Charts and Diagrams
 
-### SVG を優先する
+### Prefer SVG
 
-シンプルな図やアイコンは SVG で直接書く。
+Write simple diagrams and icons directly in SVG.
 
 ```astro
 <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
@@ -67,26 +92,26 @@ const { items } = Astro.props;
 </svg>
 ```
 
-SVG 内の色も CSS custom properties を使うこと。
+Use CSS custom properties for colors inside SVG as well.
 
-### SVG が適するもの
+### Good Use Cases for SVG
 
-- フローチャート・プロセス図・組織図
-- シンプルな棒グラフ・円グラフ（データ5点以下）
-- アイコン・ピクトグラム
-- 概念図・模式図・タイムライン
-- マトリクス（2x2等）
+- Flowcharts, process diagrams, and org charts
+- Simple bar charts and pie charts with five data points or fewer
+- Icons and pictograms
+- Concept diagrams, schematic illustrations, and timelines
+- Matrices such as 2x2 charts
 
-### ライブラリが必要な場合
+### When You Need a Library
 
-データが多い・軸ラベルや凡例が必要な場合:
+If the data is dense or you need axes, labels, or legends:
 
-1. `npm install chart.js` 等でインストール
-2. コンポーネントとしてラップ
-3. `client:load` でクライアントサイドレンダリング
+1. Install a library such as `chart.js`
+2. Wrap it in a component
+3. Render it client-side with `client:load`
 
-使い分け:
-- データ5点以下 → SVG 直書き
-- データ多数・軸・凡例 → Chart.js / ECharts
-- フローチャート → Mermaid or SVG
-- 完全カスタム → D3.js
+Rule of thumb:
+- Five data points or fewer -> inline SVG
+- Many data points, axes, or legends -> Chart.js or ECharts
+- Flowcharts -> Mermaid or SVG
+- Fully custom visuals -> D3.js

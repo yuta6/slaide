@@ -1,0 +1,94 @@
+---
+import SlideLayout from '../../../components/SlideLayout.astro';
+---
+
+<SlideLayout
+  title="Agenda"
+  pageNumber={2}
+  transition="fade"
+  notes="Walk through the agenda briefly. Emphasize that each section builds on the previous one."
+>
+  <div class="agenda">
+    <h2>What We'll Cover</h2>
+    <ol class="agenda-list">
+      <li>
+        <span class="number">01</span>
+        <div>
+          <strong>The Problem</strong>
+          <p>Why most presentations fail to communicate</p>
+        </div>
+      </li>
+      <li>
+        <span class="number">02</span>
+        <div>
+          <strong>Core Principles</strong>
+          <p>One message, visual hierarchy, whitespace</p>
+        </div>
+      </li>
+      <li>
+        <span class="number">03</span>
+        <div>
+          <strong>Before & After</strong>
+          <p>Applying the principles in practice</p>
+        </div>
+      </li>
+      <li>
+        <span class="number">04</span>
+        <div>
+          <strong>Key Metrics</strong>
+          <p>Measuring presentation effectiveness</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</SlideLayout>
+
+<style>
+  .agenda {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: var(--space-lg);
+  }
+
+  h2 {
+    font-size: var(--font-size-heading);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-xl);
+  }
+
+  .agenda-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-lg);
+  }
+
+  .number {
+    font-size: var(--font-size-heading);
+    font-weight: 700;
+    color: var(--color-primary);
+    font-family: var(--font-family-mono);
+    flex-shrink: 0;
+    width: 64px;
+  }
+
+  strong {
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+    display: block;
+    margin-bottom: var(--space-xs);
+  }
+
+  p {
+    font-size: var(--font-size-body);
+    color: var(--color-muted);
+  }
+</style>

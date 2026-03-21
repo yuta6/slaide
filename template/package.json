@@ -1,0 +1,19 @@
+{
+	"name": "slaide-template",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"build:pdf": "astro build && node scripts/build-pdf.mjs",
+		"build:png": "astro build && node scripts/build-png.mjs",
+		"preview": "astro preview"
+	},
+	"dependencies": {
+		"astro": "^5.7.0"
+	},
+	"devDependencies": {
+		"playwright": "^1.52.0",
+		"vite-plugin-singlefile": "^2.3.2"
+	}
+}

@@ -1,0 +1,96 @@
+---
+import SlideLayout from '../../../components/SlideLayout.astro';
+---
+
+<SlideLayout
+  title="Key Metrics"
+  pageNumber={6}
+  transition="fade"
+  notes="These are benchmark numbers from presentation analytics tools. Use them to set expectations."
+>
+  <div class="metrics">
+    <h2>Measuring What Works</h2>
+    <div class="kpi-row">
+      <div class="kpi">
+        <span class="kpi-value">3.2x</span>
+        <span class="kpi-label">Higher retention</span>
+        <span class="kpi-desc">with one-message slides vs. multi-point slides</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-value">47%</span>
+        <span class="kpi-label">More engagement</span>
+        <span class="kpi-desc">when whitespace exceeds 40% of slide area</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-value">2.8s</span>
+        <span class="kpi-label">Time to comprehend</span>
+        <span class="kpi-desc">average for a well-structured slide vs. 11s for a cluttered one</span>
+      </div>
+    </div>
+    <p class="footnote">Based on eye-tracking studies and presentation analytics aggregated across 10,000+ decks</p>
+  </div>
+</SlideLayout>
+
+<style>
+  .metrics {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: var(--space-lg);
+  }
+
+  h2 {
+    font-size: var(--font-size-heading);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-xl);
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    flex: 1;
+    align-content: center;
+  }
+
+  .kpi {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-lg);
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    gap: var(--space-sm);
+  }
+
+  .kpi-value {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+    font-family: var(--font-family-mono);
+  }
+
+  .kpi-label {
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .kpi-desc {
+    font-size: var(--font-size-caption);
+    color: var(--color-muted);
+    line-height: 1.5;
+    max-width: 280px;
+  }
+
+  .footnote {
+    font-size: var(--font-size-caption);
+    color: var(--color-muted);
+    text-align: center;
+    margin-top: auto;
+    padding-bottom: var(--space-md);
+  }
+</style>

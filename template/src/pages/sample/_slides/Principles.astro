@@ -1,0 +1,90 @@
+---
+import SlideLayout from '../../../components/SlideLayout.astro';
+---
+
+<SlideLayout
+  title="Core Principles"
+  pageNumber={4}
+  transition="fade"
+  notes="Three principles. Each one is simple but often violated. Give an example for each."
+>
+  <div class="principles">
+    <h2>Three Rules for Clarity</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">1</div>
+        <h3>One Message</h3>
+        <p>Each slide communicates exactly one idea. If you need two points, use two slides.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">2</div>
+        <h3>Visual Hierarchy</h3>
+        <p>The most important element should be the most visually prominent. Guide the eye.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">3</div>
+        <h3>Whitespace</h3>
+        <p>Empty space isn't wasted space. It gives content room to breathe and focuses attention.</p>
+      </div>
+    </div>
+  </div>
+</SlideLayout>
+
+<style>
+  .principles {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: var(--space-lg);
+  }
+
+  h2 {
+    font-size: var(--font-size-heading);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-xl);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    flex: 1;
+  }
+
+  .card {
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-body);
+    font-weight: 700;
+    font-family: var(--font-family-mono);
+  }
+
+  h3 {
+    font-size: var(--font-size-body);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .card p {
+    font-size: 20px;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+</style>

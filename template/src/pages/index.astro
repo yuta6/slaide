@@ -1,0 +1,54 @@
+---
+// Discover all decks: src/pages/<deck>/index.astro
+const deckGlob = import.meta.glob('./*/index.astro', { eager: false });
+const decks = Object.keys(deckGlob).map((p) =>
+	p.replace(/^\.\//, '').replace(/\/index\.astro$/, ''),
+);
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slaide</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { max-width: 600px; width: 100%; padding: 48px 24px; }
+    h1 { font-size: 32px; font-weight: 700; color: #60a5fa; margin-bottom: 8px; }
+    p { color: #94a3b8; margin-bottom: 40px; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    a {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 24px; border-radius: 12px;
+      background: #1e293b; border: 1px solid #334155;
+      color: #f1f5f9; text-decoration: none; font-size: 18px; font-weight: 500;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    a:hover { background: #273548; border-color: #60a5fa; }
+    .arrow { color: #60a5fa; margin-left: auto; }
+    .empty { color: #64748b; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>slaide</h1>
+    <p>Select a deck to present</p>
+    {decks.length > 0 ? (
+      <ul>
+        {decks.map((deck) => (
+          <li>
+            <a href={`/${deck}/`}>
+              {deck}
+              <span class="arrow">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">No decks found. Create a deck in <code>src/pages/&lt;deck-name&gt;/main.astro</code>.</p>
+    )}
+  </div>
+</body>
+</html>

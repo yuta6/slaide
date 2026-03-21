@@ -123,13 +123,14 @@ npm install                    # biome + lefthook をインストール
 npm run lint                   # 全体を lint
 npm run lint:fix               # lint + 自動修正
 
-# template/ で実行（Phase 1 構築後）
+# template/ で実行
 cd template
 npm install
-npm run dev                    # Astro dev サーバー
+npm run dev                          # Astro dev サーバー
 npm run build:png -- --deck <name>   # PNG 出力（LLM チェック用）
 npm run build:pdf -- --deck <name>   # PDF 出力
 npm run build:html -- --deck <name>  # HTML 出力
+npm run build:png -- --all           # 全デッキ一括
 ```
 
 ## 仕様の参照先
