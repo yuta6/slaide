@@ -8,7 +8,9 @@
 slaide/
 ├── docs/           ← コンセプト・技術設計・ロードマップ
 ├── template/       ← npm create slaide で配布される成果物（AGENTS.md あり）
-└── cli/            ← create-slaide CLI（Phase 3）
+├── biome.json      ← ルートの Biome 設定
+├── lefthook.yml    ← Git hooks 設定
+└── package.json    ← ルートの lint / format / commitlint コマンド
 ```
 
 各ディレクトリの詳細は、そのディレクトリ内の AGENTS.md や `docs/designDoc.md` を参照。
@@ -69,7 +71,7 @@ slaide/
 | scope | 対象 |
 |-------|------|
 | `template` | `template/` 配下の変更 |
-| `cli` | `cli/` 配下の変更 |
+| `cli` | 将来の `cli/` 配下の変更 |
 | `docs` | `docs/` 配下の変更 |
 | `root` | ルートの設定ファイル等 |
 
@@ -80,7 +82,7 @@ feat(template): add SlideLayout.astro with fixed-frame design system
 fix(template): resolve text overflow in slide content area
 docs: update designDoc.md with presenter runtime spec
 chore(root): add biome and lefthook configuration
-build(template): add Playwright and pdf-lib dependencies
+build(template): add Playwright and vite-plugin-singlefile dependencies
 ```
 
 ### コミットの粒度
@@ -126,12 +128,20 @@ npm run lint:fix               # lint + 自動修正
 # template/ で実行
 cd template
 npm install
-npm run dev                          # Astro dev サーバー
-npm run build:png -- --deck <name>   # PNG 出力（LLM チェック用）
-npm run build:pdf -- --deck <name>   # PDF 出力
-npm run build:html -- --deck <name>  # HTML 出力
-npm run build:png -- --all           # 全デッキ一括
+npm run dev                           # Astro dev サーバー
+npm run build                         # dist/index.html, dist/<deck>.html
+npm run build:png -- --deck <name>    # PNG 出力（LLM チェック用）
+npm run build:pdf -- --deck <name>    # PDF 出力
+npm run build:png                     # 全デッキ一括
+npm run build:pdf                     # 全デッキ一括
+npm run preview                       # dist/ をローカル確認
 ```
+
+補足:
+
+- `build:html` は現行テンプレートには存在しない。`npm run build` がスタンドアロン HTML を生成する
+- `build:png` / `build:pdf` は内部で `astro build` を実行してから export する
+- deck の source of truth は `template/src/pages/<deck>/index.astro`
 
 ## 仕様の参照先
 

@@ -8,27 +8,29 @@
 
 ```
 [自然言語]
-    ↓  Claude Code（AGENTS.md に従って）
-[main.astro] + [_slides/*.astro] + [コンポーネント群]
+    ↓  Claude Code / Codex（AGENTS.md に従って）
+[src/pages/<deck>/index.astro] + [DeckLayout.astro] + [_slides/*.astro] + [共有コンポーネント]
     ↓
 [Astro Build]
     ↓
-[dist/<deck>/main.html（中間成果物）]
-    ↓                    ↓                          ↓
-[build-png.mjs]      [build-pdf.mjs]            [build-html.mjs]
-    ↓                    ↓                          ↓
-[Playwright]         [Playwright]               [HTML後処理 + Presenter注入]
-    ↓                    ↓                          ↓
-[PNG（LLM確認用）]   [ベクター PDF]             [スタンドアロン HTML]
+[dist/index.html] + [dist/<deck>.html（自己完結した HTML プレゼン）]
+    ↓                    ↓
+[build-png.mjs]      [build-pdf.mjs]
+    ↓                    ↓
+[Playwright]         [Playwright + Chromium print-to-PDF]
+    ↓                    ↓
+[PNG（LLM確認用）]   [ベクター PDF]
 ```
 
 ### 3つの出力形式
 
 | コマンド | 出力 | 対象 | 用途 |
 |---------|------|------|------|
-| `build:png` | スライドごとの PNG（ラスター） | LLM | 品質チェック。Claude Code が画像を直接見て判断する |
-| `build:pdf` | ベクター PDF | 人間 | 配布、印刷、メール添付。テキスト選択・リンク有効 |
-| `build:html` | スタンドアロン HTML | 人間 | ブラウザでプレゼンテーション |
+| `build` | スタンドアロン HTML | 人間 | ブラウザでのプレゼン、共有、配布 |
+| `build:png` | スライドごとの PNG（ラスター） | LLM | 品質チェック。見た目の崩れ確認 |
+| `build:pdf` | ベクター PDF | 人間 | 配布、印刷、メール添付 |
+
+`npm run build` の時点で `dist/<deck>.html` はプレゼンアプリとして動作する。`build:png` と `build:pdf` はその HTML に対して export をかける。
 
 ---
 
@@ -38,58 +40,93 @@
 
 ```
 my-slides/
-├── package.json                ← astro / playwright
+├── package.json                ← astro / playwright / vite-plugin-singlefile
 ├── astro.config.mjs
 ├── tsconfig.json
 ├── AGENTS.md                   ← プロジェクトルートの指示書
 │
 ├── scripts/
-│   ├── build-png.mjs           ← Playwright → PNG（LLM 品質チェック用）
-│   ├── build-pdf.mjs           ← Playwright page.pdf() → ベクター PDF
-│   ├── build-html.mjs          ← main.html 後処理 + Presenter ランタイム注入
+│   ├── build-png.mjs           ← Playwright -> PNG（LLM 品質チェック用）
+│   ├── build-pdf.mjs           ← Playwright page.pdf() -> ベクター PDF
 │   └── lib/
-│       └── deck-utils.mjs      ← --deck 引数パース（省略時は全デッキ）
+│       ├── astro-inline-css.mjs← Astro build 後に CSS を HTML にインライン化
+│       └── deck-utils.mjs      ← deck 解決と preview server 起動
 │
 └── src/
+    ├── assets/
+    │   └── shared/             ← 共有画像・共通アセット
+    ├── components/
+    │   └── SlideLayout.astro   ← 固定枠 + デザインシステム（各スライド共通）
     ├── layouts/
-    │   └── SlideLayout.astro   ← 固定枠 + デザインシステム（全デッキ共通）
-    ├── components/             ← LLM が作る共有コンポーネント
-    ├── presenter/              ← Presenter ランタイム（build-html.mjs が注入）
-    │   ├── presenter.js        ← キーボード制御、状態管理
-    │   └── transitions.css     ← トランジション定義
+    │   └── DeckLayout.astro    ← Presenter shell + runtime
     └── pages/
-        ├── _AGENTS.md          ← スライドの書き方ガイド（sample/ は編集禁止）
+        ├── index.astro         ← デッキ一覧ページ
+        ├── _AGENTS.md          ← スライドの書き方ガイド
         ├── sample/             ← 参照用サンプルデッキ（読み取り専用）
-        │   ├── main.astro
+        │   ├── index.astro
+        │   ├── _assets/
         │   └── _slides/
-        └── your-deck/          ← 実際のデッキはここに作る
-            ├── main.astro
+        └── your-deck/
+            ├── index.astro
+            ├── _assets/
             └── _slides/
 ```
 
 ### `_` prefix について
 
-Astro は `src/pages/` 内のファイルをすべてルーティング対象にする。`_` prefix のファイル/ディレクトリは除外される（Astro の公式仕様）。スライドコンポーネントは個別ページではなく main.astro から import される部品なので `_slides/` に置く。`_AGENTS.md` も同様に `_` prefix で除外している。
+Astro は `src/pages/` 内のファイルをルーティング対象にする。`_slides/` と `_assets/` は deck の部品であり単独ページではないので `_` prefix を付ける。`_AGENTS.md` も同様にルーティングから外している。
 
 ---
 
-## SlideLayout.astro
+## Deck 構成
 
-### 2つの役割
+### `index.astro` が順序の唯一の真実
 
-**1. 固定枠の提供（構造的。壊してはいけない）**
-- 固定サイズ + overflow: hidden
-- ヘッダー/フッター/コンテンツの slot 構造
-- アスペクト比の切替
+スライド順序の唯一の真実は `src/pages/<deck-name>/index.astro` に置く。
 
-**2. トンマナの定義（プロジェクトごとにカスタマイズする）**
-- カラーパレット（CSS custom properties）
-- フォント設定
-- 余白・スペーシングの値
+```astro
+---
+import DeckLayout from '../../layouts/DeckLayout.astro';
+import Title from './_slides/Title.astro';
+import Summary from './_slides/Summary.astro';
+---
 
-トンマナの上書きは main.astro の `<style is:global>` で CSS custom properties を再定義するだけ。
+<DeckLayout title="Presentation Title">
+  <Title />
+  <Summary />
+</DeckLayout>
+```
 
-### Props
+- deck 単位の HTML タイトルは `DeckLayout` の `title` prop で与える
+- スライド順序は JSX の並び順で決まる
+- deck ごとのトンマナ変更は `index.astro` の `<style is:global>` で行う
+
+### `DeckLayout.astro`
+
+`DeckLayout.astro` は **プレゼンアプリ全体の shell** である。
+
+役割:
+
+1. Presenter viewport の提供
+2. slide-scaler による viewport fit
+3. キーボード・クリック・タッチ操作
+4. プログレスバーとスピーカーノート UI
+5. スライド表示切替の runtime
+
+`build` 後の HTML は `DeckLayout.astro` のおかげで、そのままプレゼンアプリとして動く。
+
+### `SlideLayout.astro`
+
+`SlideLayout.astro` は **1枚のスライド** を表す。
+
+役割:
+
+1. 固定サイズ + overflow hidden
+2. ヘッダー / コンテンツ / フッター構造
+3. アスペクト比の切替
+4. CSS custom properties による design token 提供
+
+### `SlideLayout` Props
 
 ```ts
 interface Props {
@@ -105,6 +142,10 @@ interface Props {
 }
 ```
 
+---
+
+## デザインシステム
+
 ### アスペクト比とサイズ
 
 | プリセット | 幅 | 高さ | 用途 |
@@ -116,151 +157,96 @@ interface Props {
 
 ### CSS Custom Properties
 
-**タイポグラフィ:** `--font-size-title` (64px), `--font-size-heading` (40px), `--font-size-body` (24px), `--font-size-caption` (16px), `--font-family-sans`, `--font-family-mono`
+**タイポグラフィ:** `--font-size-title`, `--font-size-heading`, `--font-size-body`, `--font-size-caption`, `--font-family-sans`, `--font-family-mono`
 
 **カラー:** `--color-primary`, `--color-secondary`, `--color-accent`, `--color-bg`, `--color-text`, `--color-muted`, `--color-border`, `--color-chart-1` 〜 `--color-chart-6`
 
-**スペーシング:** `--space-xs` (4px), `--space-sm` (8px), `--space-md` (16px), `--space-lg` (32px), `--space-xl` (64px)
+**スペーシング:** `--space-xs`, `--space-sm`, `--space-md`, `--space-lg`, `--space-xl`, `--content-padding`
 
-**レイアウト:** `--slide-width`, `--slide-height`, `--content-padding`
-
----
-
-## main.astro による順序管理
-
-スライド順序の唯一の真実は `src/pages/<deck-name>/main.astro` に置く。
-
-```astro
----
-import Title from './_slides/Title.astro';
-import Agenda from './_slides/Agenda.astro';
-import Closing from './_slides/Closing.astro';
----
-
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Presentation Title</title>
-  <style is:global>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  </style>
-</head>
-<body>
-  <Title />
-  <Agenda />
-  <Closing />
-</body>
-</html>
-```
+deck ごとのトンマナは `index.astro` の `<style is:global>` で上書きする。
 
 ---
 
-## Presenter ランタイム
+## ビルドパイプライン
 
-### 設計思想
+### `astro build`
 
-`build:html` が出力するスタンドアロン HTML は**プレゼンテーションソフト**である。ブラウザで開くだけで、キーボード操作でスライドを進め、トランジションアニメーション付きでプレゼンできる。
+`astro build` は deck ごとに `dist/<deck>.html` を生成する。
 
-**PresenterLayout.astro は使わない。** `build-html.mjs` が Astro ビルド済み HTML を後処理し、Presenter の JS/CSS を注入する。これにより `build:pdf` / `build:png` は Presenter なしの素の HTML を使い、`build:html` だけが Presenter 付きの HTML を生成する。
+現行設計では:
 
-### presenter.js
+- `vite-plugin-singlefile` で JS を単一 HTML に寄せる
+- `astro-inline-css` integration で CSS を `<style>` にインライン化する
 
-JS は最小限。**イベントハンドリングと状態管理だけ**:
-- キーボード操作（←→、スペース、f でフルスクリーン、p でノート表示）
-- クリックナビゲーション（左 20% = 前、右 80% = 次）
-- タッチスワイプ
-- プログレスバー更新
-- スライドカウンター更新
-- スピーカーノート表示
+そのため `dist/<deck>.html` は自己完結した HTML プレゼンとして配布できる。
 
-### transitions.css
-
-- Fade: opacity トランジション（デフォルト）
-- スライド表示/非表示: `[data-slide]` に `position: absolute; inset: 0; opacity: 0`、`.active` で `opacity: 1`
-- プログレスバー: `position: fixed; bottom: 0`
-- スピーカーノート: `position: fixed; bottom: 0` + `transform: translateY(100%)` で隠す、`p` キーで表示
-
----
-
-## ビルドスクリプト
-
-### 引数の仕様（共通）
-
-`--deck <name>` で単一デッキ。省略時は `dist/` 内の `main.html` を持つ全ディレクトリを自動処理。
-
-```bash
-npm run build:pdf              # 全デッキ
-npm run build:pdf -- --deck sample  # 特定デッキのみ
-```
-
-### build-png.mjs（LLM 品質チェック用）
+### `build-png.mjs`
 
 ```
-1. Astro ビルド済み dist/<deck>/main.html を Playwright で開く
-2. [data-slide] 要素を列挙
-3. 各スライド要素を slide.screenshot() で PNG 生成（ラスター）
-4. dist/<deck>/png/01.png, 02.png, ... に出力
+1. `dist/` を Vite preview server で HTTP 配信
+2. `dist/<deck>.html` を Playwright で開く
+3. Presenter 用レイアウトを一時的に解除して全スライドを見える状態にする
+4. `[data-slide]` を列挙
+5. 各スライド要素を screenshot して PNG に出力
 ```
 
-PNG はラスターだが、LLM の視覚確認が目的なので 1920x1080 で十分。
+PNG はラスターだが、LLM の視覚確認が目的なので問題ない。
 
-### build-pdf.mjs（ベクター PDF）
+### `build-pdf.mjs`
 
 ```
-1. Astro ビルド済み dist/<deck>/main.html を Playwright で開く
-2. フォント読み込み完了を待機
-3. print CSS を注入:
-   - @page { size: slide-width slide-height; margin: 0; }
-   - [data-slide] に break-after: page
-4. page.pdf() で Chromium の印刷機能を使いベクター PDF を生成
-5. dist/<deck>.pdf に出力
+1. `dist/` を Vite preview server で HTTP 配信
+2. `dist/<deck>.html` を Playwright で開く
+3. フォント読み込み完了を待機
+4. print CSS を注入し、1 slide = 1 page の印刷レイアウトに変換
+5. page.pdf() でベクター PDF を生成
+6. `dist/<deck>.pdf` に保存
 ```
 
 `page.pdf()` を使うことで:
-- **テキストが選択可能**（ラスター化しない）
-- **リンクが生きている**（`<a href>` → PDF アクション）
-- pdf-lib 等の外部ライブラリ不要
 
-### build-html.mjs（スタンドアロン HTML）
+- テキスト選択ができる
+- リンクが生きる
+- SVG や文字がラスター化されにくい
 
-```
-1. Astro ビルド済み dist/<deck>/main.html を読み込む
-2. <body> 内容と <style> タグを抽出
-3. <link rel="stylesheet"> の外部 CSS ファイルを読み込んでインライン化
-   （Astro は CSS を dist/_astro/*.css に書き出すため）
-4. presenter-viewport + slide-scaler で wrap
-5. presenter.js と transitions.css を注入
-6. scaleToFit(): translate + scale で正確なセンタリング
-   （flexbox による centering は viewport より広い要素で右ズレが起きるため使わない）
-7. ローカル画像を Base64 インライン化
-8. dist/<deck>.html にスタンドアロン HTML として出力
-```
+### `astro-inline-css.mjs`
 
-#### viewport スケーリングの実装
+Astro は build 時に `_astro/*.css` を外部ファイルとして出す。`astro-inline-css.mjs` は build 完了後に HTML を走査し、`<link rel="stylesheet">` を `<style>` に置き換える。これで deck HTML を単一ファイルとして持ち運べる。
 
-```js
-const scale = Math.min(vw / sw, vh / sh);
-const offsetX = (vw - sw * scale) / 2;
-const offsetY = (vh - sh * scale) / 2;
-scaler.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-```
+### `deck-utils.mjs`
 
-`.slide-scaler` は `position: absolute; top: 0; left: 0; transform-origin: top left` で配置。flexbox centering は使わない（overflow 時に右ズレが発生するため）。
+共通 helper 2つを持つ。
+
+1. `resolveDecks(values)`  
+   `--deck` がなければ `dist/*.html` を見て deck 一覧を解決する
+
+2. `startPreviewServer()`  
+   `dist/` を Vite preview server で HTTP 配信する。`file://` より asset 解決が安定する
+
+---
+
+## Presenter 実装の考え方
+
+現行設計では Presenter runtime は `DeckLayout.astro` の `<script>` に入っている。これは実装を 1 ファイルで見通しやすく保つための選択であり、将来的に `src/presenter/presenter.ts` へ切り出す余地はある。
+
+重要なのは以下の責務分離である。
+
+- `DeckLayout.astro` = プレゼン全体の shell と runtime
+- `SlideLayout.astro` = 1枚の固定スライド
+- `_slides/*.astro` = 実際の内容
 
 ---
 
 ## パフォーマンス考慮事項
 
-### HTML ファイルサイズ
-
-- フォント: woff2 サブセット化で Noto Sans JP は 1〜2MB
-- 画像: 元画像のサイズに依存
-- ランタイム JS: 5KB 以下を目標
-- 目標: フォント込みで 5MB 以下
+- 単一 HTML に寄せる設計なので、画像やフォントのサイズがそのまま配布サイズに効く
+- `src/assets/shared/` と deck ごとの `_assets/` は source of truth であり、`dist/` に直接 source asset を置かない
+- deck 数が増えても `index.astro` ベースの構造なので運用は比較的単純
 
 ---
 
 ## 未解決の技術的課題
 
-1. **フォント読み込みタイミング**: PDF 出力時にカスタムフォント（Google Fonts 等）が確実に読み込まれるか。`document.fonts.ready` で待機しているが、CDN からのフォントは networkidle 後も遅れることがある
-2. **デッキメタデータの置き場**: 将来ビルド専用メタデータが必要になった場合、frontmatter と別ファイルのどちらを採用するか
+1. Presenter runtime を `DeckLayout.astro` 内に持ち続けるか、`presenter.ts` へ切り出すか
+2. print CSS を `build-pdf.mjs` の injected string のまま持つか、専用 CSS に整理するか
+3. フォントと画像の最適な配布戦略をどうするか
