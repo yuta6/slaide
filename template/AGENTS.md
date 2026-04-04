@@ -81,8 +81,6 @@ Define the slide order in `src/pages/<deck-name>/index.astro` and create each sl
 An agenda or closing slide can be useful, but neither is required.
 Put deck-specific images in `src/pages/<deck-name>/_assets/` and shared images in `src/assets/shared/`.
 
-**Important: The `sample/` deck is read-only.** Do not edit, rename, or delete files under `src/pages/sample/`. Always create a new deck directory.
-
 ### Step 5: Quality Check with `build:png`
 
 ```bash
@@ -144,7 +142,6 @@ open dist/<deck-name>.html                 # MUST: open in browser for the user
     │   └── DeckLayout.astro     <- Presenter app shell and runtime
     └── pages/
         ├── index.astro          <- Built deck index page
-        ├── sample/              <- Read-only reference deck. Do NOT edit.
         └── <deck-name>/
             ├── index.astro      <- The single source of truth for slide order
             ├── _assets/         <- Optional deck-specific assets
@@ -375,6 +372,21 @@ Write simple diagrams and icons directly in SVG. Use CSS custom properties for c
 - Many data points, axes, or legends -> Chart.js or ECharts
 - Flowcharts -> Mermaid or SVG
 - Fully custom visuals -> D3.js
+
+### Installing Libraries
+
+This project is a standard npm project. Install any library you need and use it freely.
+
+```bash
+npm install katex          # Math formulas (LaTeX rendering)
+npm install echarts        # Charts (bar, line, pie, scatter...)
+npm install chart.js       # Charts (simpler API than ECharts)
+npm install d3             # Custom data visualizations
+npm install mermaid        # Diagrams and flowcharts
+npm install three          # 3D graphics
+```
+
+After installing, import and use as you would in any Astro project. Create a component in `src/components/` if the same library is used across multiple slides.
 
 ---
 

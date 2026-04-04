@@ -62,10 +62,6 @@ my-slides/
     └── pages/
         ├── index.astro         ← デッキ一覧ページ
         ├── _AGENTS.md          ← スライドの書き方ガイド
-        ├── sample/             ← 参照用サンプルデッキ（読み取り専用）
-        │   ├── index.astro
-        │   ├── _assets/
-        │   └── _slides/
         └── your-deck/
             ├── index.astro
             ├── _assets/
