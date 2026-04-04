@@ -16,18 +16,18 @@
 8. `astro-inline-css.mjs`（自己完結した HTML 出力のための CSS inline）
 9. `deck-utils.mjs`（deck 解決と preview server）
 
-### Phase 2: 品質向上
+### Phase 2: 配布
 
-10. Presenter runtime を `DeckLayout.astro` から `presenter.ts` へ分離するか判断
-11. print/export 用 CSS の整理
-12. AGENTS.md と docs の運用を安定化
-13. 複数テーマ対応（light / dark / custom）
-14. ポスター出力モード
+10. `npm create slaide` scaffolding CLI（create-slaide パッケージ）
+11. README.md / ドキュメント整備
 
-### Phase 3: 配布
+### Phase 3: 品質向上
 
-15. `npm create slaide` scaffolding CLI（create-slaide パッケージ）
-16. README.md / ドキュメント整備
+12. Presenter runtime を `DeckLayout.astro` から `presenter.ts` へ分離するか判断
+13. print/export 用 CSS の整理
+14. AGENTS.md と docs の運用を安定化
+15. 複数テーマ対応（light / dark / custom）
+16. ポスター出力モード
 
 ### Phase 4: SKILL edition
 
