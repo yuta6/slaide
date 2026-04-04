@@ -1,6 +1,6 @@
 {
 	"name": "create-slaide",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Scaffold a slaide project — natural language to consulting-quality slides",
 	"type": "module",
 	"license": "MIT",
