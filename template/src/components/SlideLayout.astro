@@ -111,14 +111,23 @@ const size = SIZES[aspectRatio] ?? SIZES['16:9'];
   }
 
   /* ===== Typography ===== */
+  /* PPTX-compatible sizing: 1920x1080 = 2x PPTX standard (10"x7.5" @96dpi) */
   .slide-frame {
-    --font-size-title: 64px;
-    --font-size-heading: 40px;
-    --font-size-body: 24px;
-    --font-size-caption: 16px;
+    --font-size-h1: 88px; /* PPTX 44pt */
+    --font-size-h2: 64px; /* PPTX 32pt */
+    --font-size-h3: 48px; /* PPTX 36pt */
+    --font-size-body: 36px; /* PPTX 18pt */
+    --font-size-small: 28px; /* PPTX 14pt */
     --font-family-sans: 'Noto Sans JP', system-ui, sans-serif;
     --font-family-mono: 'JetBrains Mono', monospace;
   }
+
+  /* Semantic HTML element styling */
+  .slide-frame h1 { font-size: var(--font-size-h1); font-weight: 700; line-height: 1.2; margin: 0; }
+  .slide-frame h2 { font-size: var(--font-size-h2); font-weight: 600; line-height: 1.2; margin: 0; }
+  .slide-frame h3 { font-size: var(--font-size-h3); font-weight: 600; line-height: 1.2; margin: 0; }
+  .slide-frame p { font-size: var(--font-size-body); line-height: 1.6; margin: 0; }
+  .slide-frame small { font-size: var(--font-size-small); color: var(--color-muted); }
 
   /* ===== Spacing ===== */
   .slide-frame {

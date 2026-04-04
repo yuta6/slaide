@@ -91,6 +91,36 @@ import SlideLayout from '../../../components/SlideLayout.astro';
 </SlideLayout>
 ```
 
+### Typography
+
+Use semantic HTML elements for automatic sizing. All font sizes are PPTX-compatible (2x relative scaling).
+
+| Element | Size | PPTX Equivalent | Use For |
+|---------|------|-----------------|---------|
+| `<h1>` | 88px | 44pt | Slide title, main message |
+| `<h2>` | 64px | 32pt | Section heading, large emphasis |
+| `<h3>` | 48px | 36pt | Subheading, secondary emphasis |
+| `<p>` | 36px | 18pt | Body text, main content |
+| `<small>` | 28px | 14pt | Caption, source, footnotes |
+
+Example:
+
+```astro
+<SlideLayout title="My Slide">
+  <h1>Key Message</h1>
+  <p>Supporting paragraph that explains the key message.</p>
+  <small>Source: data.example.com</small>
+</SlideLayout>
+```
+
+Override sizing in deck's `index.astro` if needed:
+
+```astro
+<style is:global>
+  .slide-frame h1 { font-size: 72px; } /* smaller title */
+</style>
+```
+
 ### `SlideLayout` Props
 
 | Prop | Type | Default | Description |
