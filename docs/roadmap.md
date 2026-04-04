@@ -28,12 +28,38 @@
 14. Presenter runtime を `DeckLayout.astro` から `presenter.ts` へ分離
 15. print/export 用 CSS の整理、複数テーマ対応、ポスター出力モード
 
-### Phase 4: SKILL edition
+### Phase 4: Plugin edition
 
-17. SKILL.md（薄いオーケストレーター）
-18. ブラックボックス化の実装
-19. Eject 機能
-20. フォント・素材問題の解決
+Claude Code の plugin として配布し、`/slaide` で呼べるようにする。
+
+**背景**: skill（SKILL.md）はローカルファイルベースで配布機構がない。plugin は marketplace（GitHub repo 等）経由で配布でき、中に skill を含められる。
+
+**配布構造**:
+
+```
+packages/slaide-plugin/          ← Claude Code plugin パッケージ
+├── .claude-plugin/
+│   └── marketplace.json         ← plugin メタデータ
+└── skills/
+    └── slaide/
+        └── SKILL.md             ← /slaide で呼べるオーケストレーター
+```
+
+**配布経路が 2 つに分かれる**:
+
+| 経路 | 対象 | 方法 |
+|------|------|------|
+| SKILL.md | `/slaide` コマンド | plugin marketplace（GitHub repo） |
+| template/ | プロジェクトファイル | `npm create slaide` |
+
+**実装アイテム**:
+
+16. `packages/slaide-plugin/` の作成と marketplace.json の定義
+17. SKILL.md（薄いオーケストレーター — scaffold → スライド生成 → 品質チェック → 納品）
+18. AGENTS.md の責務分離（SKILL.md = フロー制御、AGENTS.md = 技術ルール）
+19. ブラックボックス化（SKILL.md がユーザーに見せる範囲を `src/pages/<deck>/` に限定）
+20. Eject 機能（plugin モードから AGENTS.md 直接モードへの切替）
+21. フォント戦略の確定（推奨フォントスタック、system-ui ベース + Google Fonts fallback）
 
 ---
 

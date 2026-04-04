@@ -78,7 +78,7 @@
 ### npm create edition（Phase 1-3）
 
 ```bash
-npm create slaide my-slides
+npm create slaide@latest my-slides
 cd my-slides
 npm install
 # → Claude Code / Codex / Cursor 等で「ピッチデッキ作って」
