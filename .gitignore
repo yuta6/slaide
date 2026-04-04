@@ -19,3 +19,6 @@ dist/
 
 # Screenshots / PNG output (LLM check artifacts)
 screenshots/
+
+# create-slaide package (template is copied by CI at publish time)
+packages/create-slaide/template/

@@ -1,0 +1,28 @@
+{
+	"name": "create-slaide",
+	"version": "0.0.1",
+	"description": "Scaffold a slaide project — natural language to consulting-quality slides",
+	"type": "module",
+	"license": "MIT",
+	"bin": {
+		"create-slaide": "bin/create-slaide.mjs"
+	},
+	"files": [
+		"bin/",
+		"template/"
+	],
+	"keywords": [
+		"slides",
+		"presentation",
+		"astro",
+		"ai",
+		"llm",
+		"claude",
+		"codex"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yuta6/slaide.git",
+		"directory": "packages/create-slaide"
+	}
+}

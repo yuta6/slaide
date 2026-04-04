@@ -1,0 +1,8 @@
+{
+	"packages": {
+		"packages/create-slaide": {
+			"release-type": "node",
+			"package-name": "create-slaide"
+		}
+	}
+}
