@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -28,6 +28,9 @@ cpSync(templateDir, targetDir, {
 		return !exclude.has(name);
 	},
 });
+
+// Rename gitignore → .gitignore (npm strips dotfiles from published packages)
+renameSync(join(targetDir, "gitignore"), join(targetDir, ".gitignore"));
 
 // Update package.json name
 const pkgPath = join(targetDir, "package.json");
