@@ -151,3 +151,78 @@ npm run preview                       # dist/ をローカル確認
 - **技術的な設計詳細**: `docs/designDoc.md`
 - **ロードマップ**: `docs/roadmap.md`
 - **テンプレートの AGENTS.md**: `template/AGENTS.md`（エンドユーザー向けだが、何を提供するか理解するために読む）
+
+---
+
+## テンプレート層での LLM ワークフロー（エンドユーザー向け）
+
+`npm create slaide` で取得したテンプレートを使って、以下のワークフローに従う。
+
+### ステップ 1: 環境準備
+
+```bash
+cd my-slides
+npm install
+npx playwright install chromium
+```
+
+**理由**: LLM がスライドの見た目を視覚的に確認するのに必要。
+
+### ステップ 2: スライド作成
+
+ユーザーが Claude Code / Codex に指示:
+
+```
+"Create a pitch deck about [topic]"
+```
+
+LLM が `src/pages/<deck-name>/_slides/*.astro` を生成。
+
+### ステップ 3: ビルド＆確認（重要）
+
+```bash
+npm run build:png -- --deck <deck-name>
+```
+
+**何が起こるか**:
+1. `npm run build` で Astro がスライド HTML を生成
+2. Playwright が各スライドをスクリーンショット
+3. `dist/<deck-name>/<slide-1>.png`, `<slide-2>.png` ... が出力される
+
+**LLM が確認すべき項目**（PNG を見ながら）:
+- [ ] テキストが全て表示されているか？（下に切れていないか？）
+- [ ] 文字サイズは読みやすいか？
+- [ ] 空白の比率は適切か？（40-50%）
+- [ ] 色のコントラストは十分か？
+
+### ステップ 4: 修正（必要に応じて）
+
+問題があれば、該当スライドの `.astro` ファイルを修正。
+
+### ステップ 5: PDF/HTML 出力
+
+```bash
+npm run build:pdf -- --deck <deck-name>   # PDF 出力
+npm run build                               # HTML 出力
+```
+
+結果は `dist/<deck-name>.pdf`, `dist/<deck-name>.html`
+
+---
+
+### 重要なルール
+
+1. **`npm i` を最初に忘れずに** — build:png で Playwright が必要
+2. **毎回 build:png して視覚確認** — PNG を見ないと「実際どう見えるか」判断できない
+3. **相対比率を意識する** — PPTX 互換の font-size だが、コンテンツ量が多いと下に余白ができることがある
+
+### A4 Documents を作る場合
+
+同じワークフローで、`aspectRatio="A4"` を使用:
+
+```astro
+<SlideLayout aspectRatio="A4">
+  <h1>Document Title</h1>
+  <p>Word 互換のレイアウト（15px body, 1.15 line-height）</p>
+</SlideLayout>
+```
