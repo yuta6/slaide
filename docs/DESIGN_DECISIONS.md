@@ -38,6 +38,49 @@ This document records key technical decisions and their rationale.
 
 ---
 
+## Document Mode: Word A4 Compatibility
+
+**Decision:** Support Word-compatible A4 documents via `aspectRatio="A4"` property.
+
+**Rationale:**
+- **Existing infrastructure:** SlideLayout already supports multiple aspect ratios (16:9, 4:3, A4, A4-landscape)
+- **Unified system:** Use the same SlideLayout component for both presentations and documents
+- **Automatic styling:** Document mode triggers CSS overrides when A4 aspect ratio is detected
+- **Word compatibility:** Font sizes, line-height, and margins match Microsoft Word standards
+
+**Word Document Standards:**
+| Property | Value | Equivalent |
+|----------|-------|------------|
+| Page size | 794×1123px | A4 @ 96 DPI |
+| Margins | 96px (25.4mm) | Word default |
+| Body font | 15px | 11pt (Calibri/Aptos default) |
+| Line-height | 1.15 | Word standard |
+| Heading 1 | 24px | 18pt |
+| Heading 2 | 21px | 16pt |
+
+**Implementation:**
+- SlideLayout detects A4 aspect ratio automatically
+- CSS overrides apply document-specific font sizes, line-height, margins
+- Presenter UI (progress bar, notes, slide scaler) remains disabled for documents
+- Can be mixed with presentation decks in the same project
+
+**Benefits:**
+- Single tool for presentations AND documents
+- LLM agents can generate both with same codebase
+- Familiar typography to Word users
+- Export to PDF maintains Word-like appearance
+
+**Example workflow:**
+```
+/slides/
+├── pitch-deck/
+│   └── index.astro (aspectRatio="16:9")
+└── report/
+    └── index.astro (aspectRatio="A4")
+```
+
+---
+
 ## Semantic HTML for Typography
 
 **Decision:** Use semantic HTML elements (h1, h2, h3, p, small) instead of generic divs with class names.

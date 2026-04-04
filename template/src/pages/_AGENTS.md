@@ -121,6 +121,59 @@ Override sizing in deck's `index.astro` if needed:
 </style>
 ```
 
+### A4 Documents (Word-Compatible)
+
+Use `aspectRatio="A4"` or `aspectRatio="A4-landscape"` to create documents compatible with Microsoft Word standards.
+
+| Property | A4 Portrait | A4 Landscape |
+|----------|-------------|--------------|
+| Size | 794×1123px | 1123×794px |
+| Margins | 96px (25.4mm) | 96px (25.4mm) |
+| Body font | 15px (11pt equivalent) | 15px (11pt equivalent) |
+| Line-height | 1.15 (Word standard) | 1.15 (Word standard) |
+
+Example:
+
+```astro
+---
+import DeckLayout from '../../layouts/DeckLayout.astro';
+import Cover from './_slides/Cover.astro';
+import Content from './_slides/Content.astro';
+---
+
+<DeckLayout title="Report Title">
+  <Cover />
+  <Content />
+</DeckLayout>
+
+<style is:global>
+  .slide-frame {
+    background: white;
+  }
+</style>
+```
+
+**Slide component:**
+
+```astro
+---
+import SlideLayout from '../../../components/SlideLayout.astro';
+---
+
+<SlideLayout aspectRatio="A4">
+  <h1>Chapter 1: Introduction</h1>
+  <p>Body text appears at 15px (11pt equivalent) with 1.15 line spacing—matching Word's default typography.</p>
+  <p>Multiple paragraphs are separated by 12px margins.</p>
+  <h2>Section Heading</h2>
+  <p>Subheadings are 21px (16pt equivalent) with consistent spacing.</p>
+</SlideLayout>
+```
+
+**Notes:**
+- Document mode automatically adjusts font sizes, margins, and line-height for Word compatibility
+- No presenter UI (progress bar, notes) is shown for documents
+- Use `showHeader={false}` and `showFooter={false}` for cleaner document layout
+
 ### `SlideLayout` Props
 
 | Prop | Type | Default | Description |
