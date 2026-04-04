@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/yuta6/slaide/compare/create-slaide-v0.1.1...create-slaide-v0.1.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* **cli:** default to my-slides when no project name given ([341dad6](https://github.com/yuta6/slaide/commit/341dad6de2eca2ca315bfd6991de6f5af99bd743))
+
 ## [0.1.1](https://github.com/yuta6/slaide/compare/create-slaide-v0.1.0...create-slaide-v0.1.1) (2026-04-04)
 
 
