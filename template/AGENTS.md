@@ -10,7 +10,7 @@ A project for generating consulting-quality slides and documents from natural la
 4. **Only use the 5 font sizes:** `--font-size-h1` (88px), `--font-size-h2` (64px), `--font-size-h3` (48px), `--font-size-body` (36px), `--font-size-small` (28px). No custom sizes.
 5. **No hardcoded CSS.** All colors, fonts, and spacing must use CSS variables (`var(--color-primary)`, `var(--space-md)`, etc.).
 6. **Run `npm run build:png` after every change** and check the PNG output visually. This is the only way to verify layout.
-7. **When done**, run `npm run build` then `open dist/<deck-name>.html` to show the user.
+7. **When done**, run `npm run build` then `open dist/<deck-name>.html` to show the user. **Never end without opening the output.**
 
 ---
 
@@ -104,10 +104,10 @@ If something is off, fix it and run `build:png` again. Repeat until it looks rig
 ```bash
 npm run build                              # dist/index.html, dist/<deck-name>.html
 npm run build:pdf -- --deck <deck-name>    # dist/<deck-name>.pdf
-open dist/<deck-name>.html                 # Open in browser for the user
+open dist/<deck-name>.html                 # MUST: open in browser for the user
 ```
 
-Always open the final output in the browser so the user can see the result immediately.
+**You MUST run `open dist/<deck-name>.html` as the final step.** The user expects to see the finished presentation in their browser. Do not end the session without opening the output.
 
 ---
 

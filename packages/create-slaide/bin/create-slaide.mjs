@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -34,6 +35,16 @@ const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
 pkg.name = basename(targetName);
 writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
 
+// Initialize git repo (skip silently if git is not available)
+try {
+	execSync("git init && git add -A && git commit -m 'init'", {
+		cwd: targetDir,
+		stdio: "ignore",
+	});
+} catch {
+	// git not installed — no problem
+}
+
 console.log(`
   Created ${targetName}/
 
@@ -42,7 +53,6 @@ console.log(`
     cd ${targetName}
     npm install
     npx playwright install chromium
-    git init && git add -A && git commit -m "init"  # recommended
 
   Then use Claude Code or Codex:
 
