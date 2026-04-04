@@ -40,7 +40,7 @@ jobs:
           rm -rf packages/create-slaide/template/node_modules packages/create-slaide/template/dist packages/create-slaide/template/package-lock.json
 
       - name: Publish
-        run: npm publish --provenance
+        run: npm publish --provenance --access public
         working-directory: packages/create-slaide
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
