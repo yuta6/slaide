@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/yuta6/slaide/compare/create-slaide-v0.2.0...create-slaide-v0.2.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* **cli:** include .gitignore in scaffolded project via rename workaround ([9ab4a5c](https://github.com/yuta6/slaide/commit/9ab4a5c1121f504a9ae5e7169830985bd0a4fc79))
+* **template:** remove sample deck with broken CSS patterns ([97a0f17](https://github.com/yuta6/slaide/commit/97a0f178f129d873107f221fdff8d28986010368))
+
 ## [0.2.0](https://github.com/yuta6/slaide/compare/create-slaide-v0.1.2...create-slaide-v0.2.0) (2026-04-04)
 
 
