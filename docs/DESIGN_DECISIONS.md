@@ -6,27 +6,35 @@ This document records key technical decisions and their rationale.
 
 ## Typography: PPTX-Compatible Sizing
 
-**Decision:** Adopt 2x relative scaling for font sizes to match PowerPoint slide proportions.
+**Decision:** Match PPTX typography by preserving relative proportions (title/body/caption ratios) rather than absolute scaling.
 
 **Rationale:**
-- **Slide dimensions:** slaide uses fixed 1920×1080px (standard 16:9)
-- **PPTX standard:** 10" × 7.5" @ 96 DPI = 960 × 720px
-- **Ratio:** slaide size = 2× PPTX size
-- **Implication:** Font sizes should be 2× PPTX equivalents for consistent relative proportions
-  - PPTX 44pt Title → slaide 88px
-  - PPTX 32pt Heading → slaide 64px
-  - PPTX 18pt Body → slaide 36px
-  - PPTX 14pt Caption → slaide 28px
+- **Aspect ratio mismatch:** PPTX standard (10" × 7.5" = 960×720px) is 4:3, but slaide uses 16:9 (1920×1080px)
+- **Scale factors differ by axis:**
+  - Horizontal: 1920 / 960 = 2.0x
+  - Vertical: 1080 / 720 = 1.5x
+- **Solution:** Instead of uniform scaling, preserve the **relative proportions** between text sizes
+  - PPTX Title (44pt) / Body (18pt) ≈ 2.44:1
+  - slaide Body (36px) × 2.44 ≈ 88px Title
+  - This maintains "visual weight" consistency regardless of aspect ratio
+
+**Typography table (relative to body):**
+| Level | PPTX | slaide | Ratio to Body |
+|-------|------|--------|---------------|
+| Title | 44pt | 88px | 2.44x |
+| Heading | 32pt | 64px | 1.78x |
+| Body | 18pt | 36px | 1.0x |
+| Caption | 14pt | 28px | 0.78x |
 
 **Benefits:**
-- Slides generated in slaide visually match PPTX in terms of text-to-space ratio
-- LLM agents can reason about content density the same way as PPTX users
-- Familiar sizing to PowerPoint users
-- Empirically tested to reduce "bottom padding" problem (content didn't fill the frame)
+- Preserves PPTX's visual hierarchy even with different aspect ratios
+- LLM agents learn "body text is 36px, use proportions from PPTX"
+- Empirically tested to reduce "bottom padding" problem (content fills frame better)
+- Flexible: can be adjusted per deck/document type (A4 documents use different ratios)
 
 **Trade-offs:**
-- Larger base font sizes mean less text fits per slide (enforces clarity principle)
-- Requires explicit override if smaller typography is needed
+- Larger absolute font sizes than PPTX → less text per slide (enforces clarity)
+- Requires explanation: not "2x" but "proportion-preserving"
 
 ---
 
