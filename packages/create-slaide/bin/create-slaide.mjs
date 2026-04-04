@@ -5,12 +5,7 @@ import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
-const targetName = args[0];
-
-if (!targetName) {
-	console.error("Usage: npm create slaide <project-name>");
-	process.exit(1);
-}
+const targetName = args[0] || "my-slides";
 
 const targetDir = resolve(process.cwd(), targetName);
 
