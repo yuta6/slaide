@@ -26,13 +26,163 @@ These are optional examples, not a required starter set.
 - `KeyMetric.astro` - KPI highlight with a large number and label
 - `Takeaways.astro` - Key-point list with icons and text
 
+## Component Templates
+
+### Layout Component Template
+
+```astro
+---
+interface Props {
+  gap?: string;
+  ratio?: string;
+}
+const { gap = 'var(--space-lg)', ratio = '1fr 1fr' } = Astro.props;
+---
+<div class="layout" style={`--gap: ${gap}; --ratio: ${ratio}`}>
+  <div class="left"><slot name="left" /></div>
+  <div class="right"><slot name="right" /></div>
+</div>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: var(--ratio);
+    gap: var(--gap);
+    height: 100%;
+  }
+</style>
+```
+
+### Data Display Component Template
+
+```astro
+---
+interface Props {
+  value: string;
+  label: string;
+  description?: string;
+}
+const { value, label, description } = Astro.props;
+---
+<div class="metric">
+  <span class="value">{value}</span>
+  <span class="label">{label}</span>
+  {description && <span class="desc">{description}</span>}
+</div>
+
+<style>
+  .metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-sm);
+  }
+
+  .value {
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+    font-family: var(--font-family-mono);
+  }
+
+  .label {
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .desc {
+    font-size: var(--font-size-caption);
+    color: var(--color-muted);
+  }
+</style>
+```
+
+### Process Flow Component Template
+
+```astro
+---
+interface Props {
+  steps: { number: string; title: string; description: string }[];
+}
+const { steps } = Astro.props;
+---
+<div class="flow">
+  {steps.map((step, i) => (
+    <Fragment>
+      <div class="step">
+        <span class="step-num">{step.number}</span>
+        <span class="step-title">{step.title}</span>
+        <span class="step-desc">{step.description}</span>
+      </div>
+      {i < steps.length - 1 && <div class="arrow">→</div>}
+    </Fragment>
+  ))}
+</div>
+
+<style>
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    height: 100%;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-xs);
+    padding: var(--space-lg);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    flex: 1;
+    max-width: 300px;
+  }
+
+  .step-num {
+    font-size: var(--font-size-heading);
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+
+  .step-title {
+    font-size: var(--font-size-body);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .step-desc {
+    font-size: var(--font-size-caption);
+    color: var(--color-muted);
+  }
+
+  .arrow {
+    font-size: var(--font-size-heading);
+    color: var(--color-muted);
+  }
+</style>
+```
+
 ## Design Rules
 
-1. Define prop types clearly.
+1. Define prop types clearly with `interface Props`.
 2. **Use CSS custom properties. Do not hardcode values.** Use design tokens such as `var(--color-primary)` and `var(--space-md)`.
 3. Use slots so the component can accept flexible child content.
 4. Keep one component per file.
 5. Scope styles inside Astro `<style>` tags.
+
+## Prop Validation
+
+- Always define `interface Props` at the top of the frontmatter.
+- Use TypeScript union types for constrained values: `type?: 'default' | 'highlight' | 'muted'`.
+- Provide sensible defaults with destructuring: `const { gap = 'var(--space-md)' } = Astro.props;`.
+- Optional props should use `?` in the interface.
 
 ## Assets
 
@@ -41,50 +191,6 @@ Put shared images and reusable visual assets in `src/assets/shared/`.
 If an image is only used by one deck, put it next to that deck under `src/pages/<deck-name>/_assets/`.
 
 Do not add source assets directly to `dist/`. `dist/` is generated output only.
-
-## Good Example
-
-```astro
----
-interface Props {
-  items: { icon?: string; text: string; highlight?: boolean }[];
-}
-const { items } = Astro.props;
----
-<ul class="takeaways">
-  {items.map(item => (
-    <li class:list={["item", { highlight: item.highlight }]}>
-      {item.icon && <span class="icon">{item.icon}</span>}
-      <span>{item.text}</span>
-    </li>
-  ))}
-</ul>
-
-<style>
-  .takeaways {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    list-style: none;
-    padding: 0;
-  }
-
-  .item {
-    font-size: var(--font-size-body);
-    padding: var(--space-sm) var(--space-md);
-    border-left: 3px solid var(--color-muted);
-  }
-
-  .item.highlight {
-    border-left-color: var(--color-primary);
-    font-weight: 700;
-  }
-
-  .icon {
-    margin-right: var(--space-xs);
-  }
-</style>
-```
 
 ## Charts and Diagrams
 

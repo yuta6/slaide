@@ -23,11 +23,10 @@
 
 ### Phase 3: 品質向上
 
-12. Presenter runtime を `DeckLayout.astro` から `presenter.ts` へ分離するか判断
-13. print/export 用 CSS の整理
-14. AGENTS.md と docs の運用を安定化
-15. 複数テーマ対応（light / dark / custom）
-16. ポスター出力モード
+12. Components AGENTS.md の拡充（コンポーネントテンプレート例、チャート統合ガイド）
+13. サンプルデッキ拡充（プロセスフロー、ダークテーマ、画像アセットの例を追加）
+14. Presenter runtime を `DeckLayout.astro` から `presenter.ts` へ分離
+15. print/export 用 CSS の整理、複数テーマ対応、ポスター出力モード
 
 ### Phase 4: SKILL edition
 
